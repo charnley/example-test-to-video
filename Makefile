@@ -12,21 +12,21 @@ ${env}:
 	uv pip install -r requirements.txt --python ./${env}/bin/python
 	uv pip install -e . --python ./${env}/bin/python
 
+node_modules:
+	pnpm i
+
 voices:
 	mkdir $@
 	${python} -m piper.download_voices en_US-amy-medium --download-dir ./voices
 
 browsers:
-	echo $@
+	playwright install
 
 # Run
 
-example:
-	${python} -m ${package} --args
+dev-svelte:
+	npm run dev
 
-test:
-	${python} -m pytest ./tests/
+record:
+	${python} -m playwright codegen http://localhost:5173
 
-types:
-	${python} -m monkeytype run `which pytest` ./tests/
-	${python} -m monkeytype list-modules | grep ${package} | xargs -n1 monkeytype apply

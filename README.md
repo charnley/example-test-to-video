@@ -1,33 +1,38 @@
-# Test to Video Generator
+# sv
 
-Are you a small development team in a company?
-Are your users requesting documentation on how to use your application?
-Here is a a Python example on using tests to generate video example for your application.
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-- Browser automation with Playwright
-- Text-to-speech with Piper-TTS
+## Creating a project
 
-## Setup
+If you're seeing this, you've probably already done this step. Congrats!
 
-```bash
-# setup python env with uv
-make
+```sh
+# create a new project in the current directory
+npx sv create
+
+# create a new project in my-app
+npx sv create my-app
 ```
 
-### Select browser
+## Developing
 
-    playwright install
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-### Select voice
+```sh
+npm run dev
 
-    python3 -m piper.download_voices | grep "DK"
-    python3 -m piper.download_voices | grep "US"
-    python3 -m piper.download_voices da_DK-talesyntese-medium
-    python3 -m piper.download_voices en_US-amy-medium
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
 
-## Run example
+## Building
 
+To create a production version of your app:
 
+```sh
+npm run build
+```
 
+You can preview the production build with `npm run preview`.
 
-
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
