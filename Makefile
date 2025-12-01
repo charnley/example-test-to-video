@@ -1,31 +1,28 @@
 GIT_ROOT:=$(shell git rev-parse --show-toplevel)
 
 env=env
-python=${env}/bin/python
+python=./services/video_service/${env}/bin/python
 
-all: ${env} voices browsers
+all: envs voices browsers
 
 # Setup
 
-${env}:
-	uv venv ${env} --python 3.12
-	uv pip install -r requirements.txt --python ./${env}/bin/python
-	uv pip install -e . --python ./${env}/bin/python
-
-node_modules:
-	pnpm i
+envs:
+	make -C ./services/video_service/
+	make -C ./services/web_application/
 
 voices:
 	mkdir $@
 	${python} -m piper.download_voices en_US-amy-medium --download-dir ./voices
 
 browsers:
-	playwright install
+	mkdir browsers
+	${python} -m playwright install
 
 # Run
 
 dev-svelte:
-	npm run dev
+	make -C ./services/web_application/ dev
 
 record:
 	${python} -m playwright codegen http://localhost:5173
