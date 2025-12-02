@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from playwright.async_api import async_playwright
 
 SLOWMO = 100
@@ -8,6 +9,9 @@ VIEWPOINT_HEIGHT=900
 
 async def firefox_example():
     async with async_playwright() as p:
+
+        segment_name = "01_open_molcalc"
+
         # Launch Firefox browser
         browser = await p.chromium.launch(headless=True, slow_mo=SLOWMO)
         
@@ -33,9 +37,21 @@ async def firefox_example():
         # Wait a moment to see the result
         await page.wait_for_timeout(3000)
         
+        # Save video
+        # page.video.save_as(f"videos/{segment_name}.webm")
+
         # Close browser
         await context.close()
         await browser.close()
+
+        # Move the video
+        video_path = await page.video.path()
+        video_path = Path(video_path)
+
+        print(video_path)
+
+        video_path.rename(video_path.parent / Path(f"{segment_name}{video_path.suffix}"))
+
 
 
 # Run the example

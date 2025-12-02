@@ -19,6 +19,9 @@ browsers:
 	mkdir browsers
 	${python} -m playwright install
 
+example:
+	${python} ./services/video_service/src/example.py
+
 # Run
 
 dev-svelte:
@@ -27,3 +30,8 @@ dev-svelte:
 record:
 	${python} -m playwright codegen http://localhost:5173
 
+
+# Admin
+
+clean:
+	rm videos/*.webm
