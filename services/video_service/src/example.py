@@ -4,7 +4,7 @@ from playwright.async_api import async_playwright
 
 SLOWMO = 100
 
-VIEWPOINT_WIDTH=1000
+VIEWPOINT_WIDTH=1200
 VIEWPOINT_HEIGHT=900
 
 async def firefox_example():
