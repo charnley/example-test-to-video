@@ -7,7 +7,6 @@ from tutorial_generator import (
 from tutorial_generator.page_funcs import human_like_select_and_fill, slow_writing
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 # Section functions for molcalc workflow

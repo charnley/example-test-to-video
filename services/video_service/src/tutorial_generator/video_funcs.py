@@ -1,11 +1,17 @@
 from pathlib import Path
+import time
 from typing import Callable
 from playwright.async_api import async_playwright, Page, Browser, BrowserContext
+
+
+import logging
 
 from tutorial_generator.constants import (
     DEFAULT_VIEWPOINT_WIDTH,
     DEFAULT_VIEWPOINT_HEIGHT,
 )
+
+logger = logging.getLogger(__name__)
 
 async def generate_video(
     video_filename: Path,
@@ -16,10 +22,10 @@ async def generate_video(
     work_dir: str = Path("tmp_videos/")
 ):
 
-    playwright = await async_playwright()
+    playwright = await async_playwright().__aenter__()
 
     browser = await playwright.chromium.launch(
-        headless=headless,
+        headless=True,
         slow_mo=slowmo,
     )
 
@@ -49,18 +55,18 @@ async def generate_video(
 
         logging.info(f"Section: '{section_name}' took {duration:.2f} sec")
 
-
     logger.info("Saving video")
 
-    generated_video_path = await self.page.video.path()
+    generated_video_path = await page.video.path()
+    generated_video_path = Path(generated_video_path)
 
-    await self.context.close()
-    await self.browser.close()
+    await context.close()
+    await browser.close()
 
     # Rename video with segment name
     new_video_path = video_filename.parent / f"{video_filename.stem}{generated_video_path.suffix}"
     generated_video_path.rename(new_video_path)
 
-    logger.info("Video renamed")
+    logger.info(f"Video renamed: {generated_video_path}")
 
     return timings

@@ -2,6 +2,12 @@ import asyncio
 import random
 from playwright.async_api import Page
 
+async def highlight_element(page, selector):
+
+    # TODO
+
+    return
+
 
 async def slow_writing(page: Page, selector: str, text: str, min_delay: float = 0.05, max_delay: float = 0.15, has_mistakes=True):
     element = page.locator(selector)
