@@ -33,5 +33,8 @@ record:
 
 # Admin
 
+format:
+	${python} -m pre_commit run --all-files
+
 clean:
 	rm videos/*.webm
