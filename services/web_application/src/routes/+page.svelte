@@ -2,12 +2,23 @@
 	import Counter from './Counter.svelte';
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcomeFallback from '$lib/images/svelte-welcome.png';
+
+	let name = $state('world');
+	let count = $state(0);
+
 </script>
 
 <svelte:head>
 	<title>Home</title>
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
+
+<h1>Hello {name}!</h1>
+
+<input bind:value={name} />
+<button onclick={() => count += 1}>
+	clicks: {count}
+</button>
 
 <section>
 	<h1>
