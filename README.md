@@ -8,6 +8,13 @@ Create a function:
 
 and then we split and stich afterwards
 
+# TODO
+
+- [ ] Make text to speech files
+- [ ] Make a marker around the element you want to press
+- [ ] Make video, get "cuts"
+- [ ] Cut the video and speech together
+
 
 # References
 
