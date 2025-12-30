@@ -30,6 +30,8 @@ async def section_view_results(page: Page):
     await page.wait_for_timeout(3000)
     await page.get_by_text("Indeed").click()
 
+    await page.wait_for_url("**/calculations/**")
+
     await page.wait_for_timeout(3000)
 
 
