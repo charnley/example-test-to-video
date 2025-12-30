@@ -1,3 +1,5 @@
 playwright
 piper-tts
 pydantic
+pip
+pre-commit

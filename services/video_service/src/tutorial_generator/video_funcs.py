@@ -1,17 +1,13 @@
-from pathlib import Path
-import time
-from typing import Callable
-from playwright.async_api import async_playwright, Page, Browser, BrowserContext
-
-
 import logging
+import time
+from pathlib import Path
+from typing import Callable
 
-from tutorial_generator.constants import (
-    DEFAULT_VIEWPOINT_WIDTH,
-    DEFAULT_VIEWPOINT_HEIGHT,
-)
+from playwright.async_api import Page, async_playwright
+from tutorial_generator.constants import DEFAULT_VIEWPOINT_HEIGHT, DEFAULT_VIEWPOINT_WIDTH
 
 logger = logging.getLogger(__name__)
+
 
 async def generate_video(
     video_filename: Path,
@@ -19,7 +15,7 @@ async def generate_video(
     viewport_width: int = DEFAULT_VIEWPOINT_WIDTH,
     viewport_height: int = DEFAULT_VIEWPOINT_HEIGHT,
     slowmo: int = 100,
-    work_dir: str = Path("tmp_videos/")
+    work_dir: str = Path("tmp_videos/"),
 ):
 
     playwright = await async_playwright().__aenter__()

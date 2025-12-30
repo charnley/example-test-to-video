@@ -1,8 +1,8 @@
-from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 import asyncio
-from pathlib import Path
 import logging
+from pathlib import Path
 
+from playwright.async_api import Page
 from tutorial_generator.page_funcs import human_like_select_and_fill
 from tutorial_generator.video_funcs import generate_video
 
@@ -42,7 +42,7 @@ async def main():
     sections = [
         ("open_site", section_open_site),
         ("search_propane", section_search_propane),
-        ("view_results", section_view_results)
+        ("view_results", section_view_results),
     ]
 
     times = await generate_video(
@@ -55,11 +55,11 @@ async def main():
     # TODO Cut off the first loading of the website
     # TODO Split and add script
 
+
 if __name__ == "__main__":
 
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger.info("Start molcalc example")
