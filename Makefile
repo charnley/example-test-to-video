@@ -19,15 +19,15 @@ browsers:
 	mkdir browsers
 	${python} -m playwright install
 
-example:
-	${python} ./services/video_service/src/example.py
-
 # Run
 
 dev-svelte:
 	make -C ./services/web_application/ dev
 
-record:
+record-molcalc:
+	${python} -m playwright codegen https://molcalc.org
+
+record-dev:
 	${python} -m playwright codegen http://localhost:5173
 
 

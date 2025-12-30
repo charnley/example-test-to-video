@@ -5,6 +5,10 @@ browsers
 test-results
 node_modules
 
+# output
+*.webm
+*.mp3
+
 # Output
 .output
 .vercel

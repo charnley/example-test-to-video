@@ -1,4 +1,11 @@
 
+# Example of using Playwright and Piper to automate tutorials
+
+This is *not* a package, just example that it can be done.
+
+Read more here:
+
+##
 
 Create a function:
     - able to record steps
