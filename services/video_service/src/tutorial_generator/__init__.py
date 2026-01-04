@@ -1,105 +1,72 @@
-import asyncio
-import time
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+import logging
+from pathlib import Path
 
-from playwright.async_api import Browser, BrowserContext, Page, async_playwright
+from moviepy import VideoFileClip, AudioFileClip, CompositeAudioClip
+from tutorial_generator.video_funcs import generate_video
+from tutorial_generator.speech_funcs import generate_audio
 
+logger = logging.getLogger(__name__)
 
-@dataclass
-class SectionTiming:
-    name: str
-    start_time: float
-    end_time: float
-    duration: float
+def synchronize_video_audio(video_filename, audio_filenames, timestamps, remove_first_section=False):
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "duration": self.duration,
-        }
+    video = VideoFileClip(str(video_filename))
 
+    # if trim_start > 0:
+    #     video = video.subclip(trim_start)
 
-class TimedTestRunner:
-    def __init__(self, page: Page):
-        self.page = page
-        self.timings: List[SectionTiming] = []
+    trim_start = 0
 
-    async def run_section(self, name: str, section_func: Callable[[Page], Any]) -> SectionTiming:
-        start_time = time.time()
+    audio_clips = []
 
-        try:
-            await section_func(self.page)
-        except Exception as e:
-            raise RuntimeError(f"Section '{name}' failed: {e}")
+    for audio_path, timestamp in zip(audio_filenames, timestamps):
 
-        end_time = time.time()
-        duration = end_time - start_time
+        audio = AudioFileClip(str(audio_path))
+        adjusted_start = timestamp - trim_start
 
-        timing = SectionTiming(
-            name=name, start_time=start_time, end_time=end_time, duration=duration
-        )
+        if adjusted_start >= 0:
+            audio_clips.append(audio.with_start(adjusted_start))
 
-        self.timings.append(timing)
-        return timing
+    # Composite audio and apply to video
+    final_audio = CompositeAudioClip(audio_clips)
+    final_video = video.with_audio(final_audio)
 
-    def get_timings(self) -> List[Dict[str, Any]]:
-        return [timing.to_dict() for timing in self.timings]
+    # Generate output filename
+    output_path = video_filename.parent / f"{video_filename.stem}_merged{video_filename.suffix}"
+    final_video.write_videofile(str(output_path), audio_codec="aac")
 
-    def clear_timings(self):
-        self.timings.clear()
+    return output_path
 
 
-class VideoTutorialGenerator:
-    def __init__(
-        self,
-        viewport_width: int = 1200,
-        viewport_height: int = 900,
-        slowmo: int = 100,
-        video_dir: str = "videos/",
-    ):
-        self.viewport_width = viewport_width
-        self.viewport_height = viewport_height
-        self.slowmo = slowmo
-        self.video_dir = video_dir
-        self.browser: Optional[Browser] = None
-        self.context: Optional[BrowserContext] = None
-        self.page: Optional[Page] = None
-        self.runner: Optional[TimedTestRunner] = None
+def generate_tutorial(name, voice, actions, texts, remove_first_section=False):
 
-    async def start(self, headless: bool = True) -> None:
-        playwright = await async_playwright().__aenter__()
+    logger.info(f"Generating {name} tutorial")
 
-        self.browser = await playwright.chromium.launch(headless=headless, slow_mo=self.slowmo)
+    tmp_dir = Path("tmp_videos")
+    video_name = f"{name}"
 
-        self.context = await self.browser.new_context(
-            record_video_dir=self.video_dir,
-            viewport={"width": self.viewport_width, "height": self.viewport_height},
-            record_video_size={"width": self.viewport_width, "height": self.viewport_height},
-        )
+    assert len(actions) == len(texts)
 
-        self.page = await self.context.new_page()
-        self.runner = TimedTestRunner(self.page)
+    logger.info(f"Generating audio files")
 
-    async def run_section(self, name: str, section_func: Callable[[Page], Any]) -> SectionTiming:
-        if not self.runner:
-            raise RuntimeError("Must call start() before running sections")
-        return await self.runner.run_section(name, section_func)
+    audio_filenames = []
 
-    async def close(self) -> Dict[str, Any]:
-        if not self.page or not self.context or not self.browser:
-            raise RuntimeError("Must call start() before closing")
+    for i, text in enumerate(texts):
 
-        video_path = await self.page.video.path()
+        filename = tmp_dir / f"section_{i}"
+        filename = generate_audio(voice, text, filename)
+        audio_filenames.append(filename)
 
-        await self.context.close()
-        await self.browser.close()
+        logger.info(f"Finished {filename}")
 
-        timings = self.runner.get_timings() if self.runner else []
+    logger.info(f"Generating video file")
 
-        return {"video_path": video_path, "timings": timings}
+    timestamps = generate_video(
+        Path(video_name),
+        actions,
+    )
 
-    def get_timings(self) -> List[Dict[str, Any]]:
-        return self.runner.get_timings() if self.runner else []
+    video_filename = tmp_dir / Path(video_name).with_suffix(".webm")
+
+    synchronize_video_audio(video_filename, audio_filenames, timestamps, remove_first_section=remove_first_section)
+
+    return True

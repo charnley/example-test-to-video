@@ -1,41 +1,44 @@
-import asyncio
 import logging
 from pathlib import Path
 
-from playwright.async_api import Page
+from playwright.sync_api import Page
+from piper import PiperVoice
+
 from tutorial_generator.page_funcs import human_like_select_and_fill
 from tutorial_generator.video_funcs import generate_video
+from tutorial_generator.speech_funcs import generate_audio
+from tutorial_generator import generate_tutorial
 
 logger = logging.getLogger(__name__)
 
 
-async def section_open_site(page: Page):
-    await page.goto("https://molcalc.org", timeout=60000)
+def section_open_site(page: Page):
+    page.goto("https://molcalc.org", timeout=60000)
 
 
-async def section_search_propane(page: Page):
-    await page.wait_for_selector("#searchbar")
-    await page.wait_for_timeout(2000)
-    await human_like_select_and_fill(page, "#searchbar", "Propane")
-    await page.press("#searchbar", "Enter")
-    await page.locator(".meter > span").wait_for(state="hidden")
+def section_search_propane(page: Page):
+    page.wait_for_selector("#searchbar")
+    page.wait_for_timeout(2000)
+    human_like_select_and_fill(page, "#searchbar", "Propane")
+    page.press("#searchbar", "Enter")
+    page.locator(".meter > span").wait_for(state="hidden")
 
 
-async def section_view_results(page: Page):
+def section_view_results(page: Page):
 
-    await page.wait_for_timeout(3000)
-    await page.get_by_role("link", name="Calculate Properties").scroll_into_view_if_needed()
-    await page.get_by_role("link", name="Calculate Properties").click()
+    page.get_by_role("link", name="Calculate Properties").scroll_into_view_if_needed()
+    page.wait_for_timeout(3000)
+    page.get_by_role("link", name="Calculate Properties").click()
 
-    await page.wait_for_timeout(3000)
-    await page.get_by_text("Indeed").click()
+    page.wait_for_timeout(3000)
+    page.get_by_text("Indeed").click()
 
-    await page.wait_for_url("**/calculations/**")
+    page.wait_for_url("**/calculations/**")
 
-    await page.wait_for_timeout(3000)
+    page.wait_for_timeout(3000)
 
 
-async def main():
+def main2():
 
     video_name = "how_to_molcalc"
 
@@ -45,7 +48,7 @@ async def main():
         ("view_results", section_view_results),
     ]
 
-    times = await generate_video(
+    times = generate_video(
         Path(video_name),
         sections,
     )
@@ -56,6 +59,49 @@ async def main():
     # TODO Split and add script
 
 
+def main2():
+
+    tmp_dir = Path("./tmp_videos")
+
+    section_texts = [
+        "Hi, I'm Amy",
+        "Today we going to get quantum calculations gooooing",
+    ]
+
+    voice = PiperVoice.load("./voices/en_US-amy-medium.onnx")
+
+    for i, text in enumerate(section_texts):
+
+        filename = tmp_dir / f"section_{i}"
+        filename = generate_audio(voice, text, filename)
+
+        logger.info(f"Finished {filename}")
+
+    return
+
+def main():
+
+    voice = PiperVoice.load("./voices/en_US-amy-medium.onnx")
+
+    video_name = "how_to_molcalc"
+
+    section_texts = [
+        "",
+        "Hi, I'm Amy",
+        "Today we going to get quantum calculations gooooing",
+    ]
+
+    section_actions = [
+        section_open_site,
+        section_search_propane,
+        section_view_results,
+    ]
+
+    filename = generate_tutorial(video_name, voice, section_actions, section_texts, remove_first_section=True)
+
+    return
+
+
 if __name__ == "__main__":
 
     logging.basicConfig(
@@ -64,6 +110,6 @@ if __name__ == "__main__":
 
     logger.info("Start molcalc example")
 
-    asyncio.run(main())
+    main()
 
     logger.info("Finish molcalc example")
