@@ -86,9 +86,9 @@ def main():
     video_name = "how_to_molcalc"
 
     section_texts = [
-        "",
-        "Hi, I'm Amy",
-        "Today we going to get quantum calculations gooooing",
+        "Hi.",
+        "Search for Propane",
+        "View the results",
     ]
 
     section_actions = [
